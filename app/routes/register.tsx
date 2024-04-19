@@ -1,5 +1,10 @@
 import {Form, json, useActionData} from '@remix-run/react';
-import {type ActionFunctionArgs} from '@remix-run/server-runtime';
+import {
+  type LoaderFunctionArgs,
+  redirect,
+  type ActionFunctionArgs,
+  defer,
+} from '@remix-run/server-runtime';
 import {type CustomerCreateInput} from '@shopify/hydrogen/storefront-api-types';
 
 export const action = async ({request, context}: ActionFunctionArgs) => {
@@ -14,8 +19,30 @@ export const action = async ({request, context}: ActionFunctionArgs) => {
     },
   });
 
+  if (data.customerCreate) {
+    return redirect('/account/login', {
+      headers: {
+        'Set-Cookie': await context.session.commit(),
+      },
+    });
+  }
+
   return json(data, {status: 200});
 };
+
+export async function loader({context}: LoaderFunctionArgs) {
+  const isLoggedIn = await context.customerAccount.isLoggedIn();
+
+  if (isLoggedIn) {
+    return redirect('/account', {
+      headers: {
+        'Set-Cookie': await context.session.commit(),
+      },
+    });
+  }
+
+  return defer({});
+}
 
 const Register = () => {
   const data = useActionData<typeof action>();
