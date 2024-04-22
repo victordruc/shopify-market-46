@@ -6,12 +6,19 @@ import {
   json,
 } from '@remix-run/server-runtime';
 import {CartForm, getPaginationVariables} from '@shopify/hydrogen';
+import {type ProductFilter} from '@shopify/hydrogen/storefront-api-types';
+import queryString from 'query-string';
+import {FiltersProduct} from '~/components/FiltersProduct';
 import {Products} from '~/components/Products';
 
 export const loader = ({params, context, request}: LoaderFunctionArgs) => {
+  const searchParams = new URL(request.url).search;
+  const filters = queryString.parse(searchParams) as ProductFilter;
+
   const products = context.storefront.query(PRODUCTS_QUERY, {
     variables: {
       handle: params.handle,
+      filters,
       ...getPaginationVariables(request, {pageBy: 1}),
     },
   });
@@ -41,7 +48,12 @@ export async function action({request, context}: ActionFunctionArgs) {
 const ProductsPage = () => {
   const {products} = useLoaderData<typeof loader>();
 
-  return <Products products={products} />;
+  return (
+    <>
+      <FiltersProduct products={products} />
+      <Products products={products} />
+    </>
+  );
 };
 
 export default ProductsPage;
@@ -101,10 +113,11 @@ const PRODUCTS_QUERY = `#graphql
         $startCursor: String,
         $endCursor: String,
         $handle: String
+        $filters: [ProductFilter!]
         )
         @inContext(country: $country, language: $language){
 collection(handle: $handle) {
-    products(first: $first, last: $last, before: $startCursor, after: $endCursor) {
+    products(first: $first, last: $last, before: $startCursor, after: $endCursor, filters: $filters) {
       nodes {
         ...ProductsFragment
         variants(first: 1) {
@@ -118,7 +131,16 @@ collection(handle: $handle) {
         hasNextPage
         hasPreviousPage
         startCursor
-       
+      }
+      filters {
+        id
+        label
+        presentation
+        type
+        values {
+          id
+          label
+        }
       }
     }
   }

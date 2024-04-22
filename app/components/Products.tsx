@@ -1,5 +1,5 @@
 import {Await, type FetcherWithComponents, Link} from '@remix-run/react';
-import {CartForm, Image, Pagination} from '@shopify/hydrogen';
+import {CartForm, Image, Money, Pagination} from '@shopify/hydrogen';
 import {Suspense} from 'react';
 import {type AllProductsQuery} from 'storefrontapi.generated';
 
@@ -34,6 +34,8 @@ export const Products = ({products}: ProductsProps) => {
                           )}
                           {title}
                         </div>
+
+                        <Money data={variants.nodes[0].price} />
                       </Link>
 
                       <CartForm
