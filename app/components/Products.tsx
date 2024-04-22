@@ -36,6 +36,12 @@ export const Products = ({products}: ProductsProps) => {
                         </div>
 
                         <Money data={variants.nodes[0].price} />
+                        {variants.nodes[0].compareAtPrice && (
+                          <Money
+                            as="s"
+                            data={variants.nodes[0].compareAtPrice}
+                          />
+                        )}
                       </Link>
 
                       <CartForm

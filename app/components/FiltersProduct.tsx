@@ -1,5 +1,5 @@
 import {Await, useSearchParams} from '@remix-run/react';
-import queryString from 'query-string';
+
 import {Suspense} from 'react';
 import {type AllProductsQuery} from 'storefrontapi.generated';
 

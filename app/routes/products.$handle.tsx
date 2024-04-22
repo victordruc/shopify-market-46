@@ -89,6 +89,10 @@ const PRODUCTS_QUERY = `#graphql
       amount
       currencyCode
     }
+    compareAtPrice {
+      amount
+      currencyCode
+    }
     product {
       title
       handle
